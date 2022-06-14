@@ -1,10 +1,12 @@
 package repository
 
 import (
+	"errors"
 	"io/ioutil"
 	"path"
 	"strings"
 
+	builder "github.com/alexcoder04/LeoConsole-apkg-builder/pkg"
 	"github.com/alexcoder04/arrowprint"
 	"github.com/alexcoder04/lpm/settings"
 	"github.com/alexcoder04/lpm/utils"
@@ -20,6 +22,18 @@ func GetUrlFor(pkgname string) string {
 		}
 	}
 	return ""
+}
+
+func CheckCompatibility(pkginfo builder.PKGINFO) error {
+	arrowprint.Suc1("checking compatibility")
+	if pkginfo.PackageOS != utils.GetOS() && pkginfo.PackageOS != "any" {
+		return errors.New("package OS incompatible")
+	}
+	conflict, err := AnyFilesAlreadyInstalled(pkginfo.Files)
+	if conflict {
+		return errors.New("package conflicts with some installed package")
+	}
+	return err
 }
 
 func AnyFilesAlreadyInstalled(files []string) (bool, error) {

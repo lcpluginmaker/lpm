@@ -7,6 +7,7 @@ import (
 	"path"
 
 	"github.com/alexcoder04/arrowprint"
+	"github.com/alexcoder04/lpm/utils"
 )
 
 type Config struct {
@@ -24,16 +25,12 @@ func UpdateConfig() error {
 	configFile := path.Join(Folders["config"], "config.json")
 	cont, err := ioutil.ReadFile(configFile)
 	if err != nil {
-		if os.IsNotExist(err) {
-			f, err := os.Create(configFile)
-			if err != nil {
-				return err
-			}
-			defer f.Close()
-			_, err = f.Write([]byte(`{"firstRun":false}`))
-			if err != nil {
-				return err
-			}
+		if !os.IsNotExist(err) {
+			return err
+		}
+		err := utils.WriteLinesList(configFile, []string{`{"firstRun":false}`})
+		if err != nil {
+			return err
 		}
 	}
 	err = json.Unmarshal(cont, &CurrentConfig)

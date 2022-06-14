@@ -13,7 +13,7 @@ import (
 )
 
 func WriteLinesList(file string, lines []string) error {
-	f, err := os.Create(file)
+	f, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE, 0600)
 	defer f.Close()
 	if err != nil {
 		return err

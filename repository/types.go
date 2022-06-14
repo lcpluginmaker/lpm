@@ -1,14 +1,14 @@
 package repository
 
 type RepositoryIndex struct {
-	IndexVersion float64          `json:"indexVersion"`
-	Name         string           `json:"name"`
-	Url          string           `json:"url"`
-	Project      IndexProjectData `json:"project"`
-	PackageList  []RepoPackage    `json:"packageList"`
+	IndexVersion float64               `json:"indexVersion"`
+	Name         string                `json:"name"`
+	Url          string                `json:"url"`
+	Project      RepositoryProjectData `json:"project"`
+	PackageList  []RepositoryPackage   `json:"packageList"`
 }
 
-type IndexProjectData struct {
+type RepositoryProjectData struct {
 	Description string `json:"description"`
 	Maintainer  string `json:"maintainer"`
 	Email       string `json:"email"`
@@ -16,7 +16,7 @@ type IndexProjectData struct {
 	BugTracker  string `json:"bugTracker"`
 }
 
-type RepoPackage struct {
+type RepositoryPackage struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Version     string `json:"version"`

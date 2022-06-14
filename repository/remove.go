@@ -13,6 +13,7 @@ import (
 func RemovePackage(name string) error {
 	arrowprint.Suc0("removing %s", name)
 	if !utils.StringArrayContains(GetListInstalled(), name) {
+		arrowprint.Info0("%s is not installed", name)
 		return nil
 	}
 	files, err := utils.ReadLinesList(path.Join(settings.Folders["config"], "installed", name, "files"))
@@ -30,5 +31,10 @@ func RemovePackage(name string) error {
 		}
 	}
 	arrowprint.Info1("unregistering %s from database", name)
-	return os.RemoveAll(path.Join(settings.Folders["config"], "installed", name))
+	err = os.RemoveAll(path.Join(settings.Folders["config"], "installed", name))
+	if err != nil {
+		return err
+	}
+	arrowprint.Suc0("package %s removed", name)
+	return nil
 }
