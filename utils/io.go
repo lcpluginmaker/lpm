@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alexcoder04/arrowprint"
 )
 
 func WriteLinesList(file string, lines []string) error {
@@ -47,6 +49,7 @@ func ReadLinesList(file string) ([]string, error) {
 }
 
 func Unzip(src string, dest string) ([]string, error) {
+	arrowprint.Suc1("extracting %s to %s", src, dest)
 
 	var filenames []string
 

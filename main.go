@@ -33,6 +33,8 @@ func _init(data gilc.IData, stage int) error {
 }
 
 func pmain(data gilc.IData) {
+	arrowprint.Suc0("running PluginMain for lpm")
+
 	_init(data, 0)
 
 	// create folders
@@ -58,12 +60,6 @@ func pmain(data gilc.IData) {
 			arrowprint.Err0("cannot install lpm: %s", err.Error())
 			return
 		}
-	}
-
-	err = _init(data, 2)
-	if err != nil {
-		arrowprint.Err0("cannot load config: %s", err.Error())
-		return
 	}
 }
 

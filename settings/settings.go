@@ -5,11 +5,13 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+
+	"github.com/alexcoder04/arrowprint"
 )
 
 type Config struct {
-	FirstRun bool `json:"firstRun"`
-	DevMode  bool `json:"devMode"`
+	FirstRun  bool `json:"firstRun"`
+	DebugMode bool `json:"debugMode"`
 }
 
 const DEFAULT_REPO = "https://raw.githubusercontent.com/alexcoder04/LeoConsole-repo-main/main/index.json"
@@ -18,6 +20,7 @@ var Folders map[string]string = make(map[string]string)
 var CurrentConfig Config = Config{}
 
 func UpdateConfig() error {
+	arrowprint.Suc0("loading config")
 	configFile := path.Join(Folders["config"], "config.json")
 	cont, err := ioutil.ReadFile(configFile)
 	if err != nil {
@@ -27,6 +30,10 @@ func UpdateConfig() error {
 				return err
 			}
 			defer f.Close()
+			_, err = f.Write([]byte(`{"firstRun":false}`))
+			if err != nil {
+				return err
+			}
 		}
 	}
 	err = json.Unmarshal(cont, &CurrentConfig)

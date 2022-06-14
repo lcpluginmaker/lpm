@@ -3,7 +3,19 @@ package utils
 import (
 	"io"
 	"os"
+	"runtime"
 )
+
+func GetOS() string {
+	switch runtime.GOOS {
+	case "windows":
+		return "win64"
+	case "linux":
+		return "lnx64"
+	default:
+		return "unknown"
+	}
+}
 
 func IsDir(path string) bool {
 	stat, err := os.Stat(path)

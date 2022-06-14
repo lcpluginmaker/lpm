@@ -11,44 +11,20 @@ import (
 	"strings"
 
 	builder "github.com/alexcoder04/LeoConsole-apkg-builder/pkg"
+	"github.com/alexcoder04/arrowprint"
 	"github.com/alexcoder04/gilc"
 	"github.com/alexcoder04/lpm/settings"
 	"github.com/alexcoder04/lpm/utils"
 )
 
-func GetUrlFor(pkgname string) string {
-	for _, r := range Indexes {
-		for _, p := range r.PackageList {
-			if p.Name == pkgname {
-				return p.Url
-			}
-		}
-	}
-	return ""
-}
-
-func RemovePackage(name string) error {
-	if !utils.StringArrayContains(GetListInstalled(), name) {
-		return nil
-	}
-	files, err := utils.ReadLinesList(path.Join(settings.Folders["config"], "installed", name, "files"))
-	if err != nil {
-		return err
-	}
-	for _, f := range files {
-		err := os.Remove(path.Join(settings.Folders["root"], f))
-		if err != nil {
-			return err
-		}
-	}
-	return os.RemoveAll(path.Join(settings.Folders["config"], "installed", name))
-}
+// TODO refactor this file
 
 func InstallPackage(name string) error {
 	dlUrl := GetUrlFor(name)
 	if dlUrl == "" {
 		return errors.New("package " + name + " was not found")
 	}
+	arrowprint.Suc1("downloading from %s", dlUrl)
 	res, err := http.Get(dlUrl)
 	if err != nil {
 		return err
@@ -63,10 +39,17 @@ func InstallPackage(name string) error {
 	if err != nil {
 		return err
 	}
-	return InstallArchive(path.Join(settings.Folders["temp"], name+"lcp"))
+	err = InstallArchive(path.Join(settings.Folders["temp"], name+"lcp"))
+	if err != nil {
+		return err
+	}
+	arrowprint.Suc0("package %s removed", name)
+	return nil
 }
 
 func InstallArchive(file string) error {
+	arrowprint.Suc0("installing %s", file)
+	arrowprint.Suc1("extracting package")
 	unzipDir := path.Join(settings.Folders["temp"], strings.Split(file, ".")[0])
 	if utils.IsDir(unzipDir) {
 		err := os.RemoveAll(unzipDir)
@@ -78,6 +61,7 @@ func InstallArchive(file string) error {
 	if err != nil {
 		return err
 	}
+	arrowprint.Suc1("reading PKGINFO")
 	cont, err := ioutil.ReadFile(path.Join(unzipDir, "PKGINFO.json"))
 	if err != nil {
 		return err
@@ -87,6 +71,10 @@ func InstallArchive(file string) error {
 	if err != nil {
 		return err
 	}
+	if pkginfo.PackageOS != utils.GetOS() && pkginfo.PackageOS != "any" {
+		return errors.New("package OS incompatible")
+	}
+	arrowprint.Suc1("checking integrity")
 	conflict, err := AnyFilesAlreadyInstalled(pkginfo.Files)
 	if err != nil {
 		return err
@@ -115,23 +103,26 @@ func InstallArchive(file string) error {
 			return err
 		}
 	}
-	for _, f := range pkginfo.Files {
+	for i, f := range pkginfo.Files {
 		fullPath := path.Join(settings.Folders["root"], f)
 		err := os.MkdirAll(path.Dir(fullPath), 0700)
 		if err != nil {
 			return err
 		}
+		arrowprint.Info1("installing file %d of %d", i+1, len(pkginfo.Files))
 		err = utils.CopyFile(path.Join(unzipDir, f), path.Join(settings.Folders["root"], f))
 		if err != nil {
 			return err
 		}
 		if strings.HasPrefix(f, "share/scripts") || strings.HasPrefix(f, "share/go-plugin") {
+			arrowprint.Info1("marking %s as executable", f)
 			err := os.Chmod(path.Join(settings.Folders["root"], f), 0700)
 			if err != nil {
 				return err
 			}
 		}
 	}
+	arrowprint.Suc0("registering %s in database", pkginfo.PackageName)
 	err = os.MkdirAll(path.Join(settings.Folders["config"], "installed", pkginfo.PackageName), 0700)
 	if err != nil {
 		return err
@@ -140,38 +131,10 @@ func InstallArchive(file string) error {
 	if err != nil {
 		return err
 	}
-	return utils.WriteLinesList(path.Join(settings.Folders["config"], "installed", pkginfo.PackageName, "version"), []string{pkginfo.PackageVersion})
-}
-
-func AnyFilesAlreadyInstalled(files []string) (bool, error) {
-	for _, f := range files {
-		packageDirs, err := ioutil.ReadDir(path.Join(settings.Folders["config"], "installed"))
-		if err != nil {
-			return true, err
-		}
-		for _, pDir := range packageDirs {
-			lines, err := utils.ReadLinesList(path.Join(pDir.Name(), "files"))
-			if err != nil {
-				return true, err
-			}
-			for _, l := range lines {
-				if strings.TrimSpace(l) == strings.TrimSpace(f) {
-					return true, nil
-				}
-			}
-		}
-	}
-	return false, nil
-}
-
-func GetListInstalled() []string {
-	files, err := ioutil.ReadDir(path.Join(settings.Folders["config"], "installed"))
+	err = utils.WriteLinesList(path.Join(settings.Folders["config"], "installed", pkginfo.PackageName, "version"), []string{pkginfo.PackageVersion})
 	if err != nil {
-		return []string{}
+		return err
 	}
-	var pkgs []string = []string{}
-	for _, f := range files {
-		pkgs = append(pkgs, f.Name())
-	}
-	return pkgs
+	arrowprint.Suc1("package %s installed", pkginfo.PackageName)
+	return nil
 }

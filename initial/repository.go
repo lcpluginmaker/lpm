@@ -3,10 +3,12 @@ package initial
 import (
 	"errors"
 
+	"github.com/alexcoder04/arrowprint"
 	"github.com/alexcoder04/lpm/repository"
 )
 
 func CheckRepositories() error {
+	arrowprint.Suc1("checking repositories")
 	repos := repository.GetListRepositories()
 	if len(repos) >= 1 {
 		return nil

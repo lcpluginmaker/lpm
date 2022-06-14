@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path"
 
+	"github.com/alexcoder04/arrowprint"
 	"github.com/alexcoder04/lpm/settings"
 	"github.com/alexcoder04/lpm/utils"
 )
@@ -14,12 +15,14 @@ var Indexes []RepositoryIndex = getIndexes()
 
 // TODO save to file and restore from file
 func Reload() {
+	arrowprint.Suc0("reloading repositories")
 	Indexes = getIndexes()
 }
 
 func getIndexes() []RepositoryIndex {
 	var indexList []RepositoryIndex = make([]RepositoryIndex, 0)
 	for _, r := range GetListRepositories() {
+		arrowprint.Suc1("processing %s", r)
 		res, err := http.Get(r)
 		if err != nil {
 			continue
@@ -43,6 +46,7 @@ func getIndexes() []RepositoryIndex {
 }
 
 func EnableDefault() error {
+	arrowprint.Suc1("enabling default repository (%s)", settings.DEFAULT_REPO)
 	return utils.WriteLinesList(
 		path.Join(settings.Folders["config"], "repos.txt"),
 		[]string{settings.DEFAULT_REPO}[:])

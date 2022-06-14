@@ -1,0 +1,18 @@
+{
+  "manifestVersion": 2.1,
+  "packageName": "lpm",
+  "packageVersion": "0.0.1",
+  "build": {
+    "command": "go",
+    "args": ["build", "-o", "./share/go-plugin/lpm", "."],
+    "folder": ".",
+    "dlls": [],
+    "share": "./share"
+  },
+  "project": {
+    "maintainer": "alexcoder04",
+    "email": "alexcoder04@protonmail.com",
+    "homepage": "https://github.com/alexcoder04/LeoConsole-apkg",
+    "bugTracker": "https://github.com/alexcoder04/LeoConsole-apkg/issues"
+  }
+}
