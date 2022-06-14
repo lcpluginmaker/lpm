@@ -6,18 +6,18 @@ import (
 	"github.com/alexcoder04/lpm/repository"
 )
 
-func CheckRepositories() ([]string, error) {
-	repos := repository.GetList()
+func CheckRepositories() error {
+	repos := repository.GetListRepositories()
 	if len(repos) >= 1 {
-		return repos, nil
+		return nil
 	}
 	err := repository.EnableDefault()
 	if err != nil {
-		return []string{}, err
+		return err
 	}
-	repos = repository.GetList()
+	repos = repository.GetListRepositories()
 	if len(repos) < 1 {
-		return []string{}, errors.New("default repository cannot be enabled")
+		return errors.New("default repository cannot be enabled")
 	}
-	return repos, nil
+	return nil
 }
