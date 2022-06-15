@@ -44,13 +44,6 @@ func pmain(data gilc.IData) {
 		return
 	}
 
-	// check repositories
-	err = initial.CheckRepositories()
-	if err != nil {
-		arrowprint.Err0("error checking repositories: %s", err.Error())
-		return
-	}
-
 	_init(data, 1)
 
 	if !utils.StringArrayContains(repository.GetListInstalled(), "lpm") {
@@ -75,21 +68,43 @@ func pcommand(data gilc.IData, args []string) {
 		arrowprint.Err0("cannot load config: %s", err.Error())
 		return
 	}
-	// TODO: update
-	// TODO debug: build, get-local
+	// TODO debug: build
 	switch args[0] {
-	case "reload", "sync", "s":
-		repository.Reload()
-		return
 	case "search", "f":
 		commands.Search(args)
+		return
+	case "help", "h":
+		commands.Help()
+		return
+	case "get-local", "gl":
+		if !settings.CurrentConfig.DebugMode {
+			arrowprint.Err0("this command is only available in debug mode")
+			return
+		}
+		if len(args) < 2 {
+			arrowprint.Err0("you need to pass an argument")
+			return
+		}
+		err := commands.GetLocal(args[1])
+		if err != nil {
+			arrowprint.Err0("error installing %s: %s", args[1], err.Error())
+		}
 		return
 	case "get", "install", "i":
 		if len(args) < 2 {
 			arrowprint.Err0("you need to pass the package name")
 			return
 		}
-		repository.InstallPackage(args[1])
+		err := repository.InstallPackage(args[1])
+		if err != nil {
+			arrowprint.Err0("error installing %s: %s", args[1], err.Error())
+		}
+		return
+	case "list-available", "la":
+		commands.ListAvailable()
+		return
+	case "list-installed", "li":
+		commands.ListInstalled()
 		return
 	case "remove", "uninstall", "r":
 		if len(args) < 2 {
@@ -98,14 +113,11 @@ func pcommand(data gilc.IData, args []string) {
 		}
 		repository.RemovePackage(args[1])
 		return
-	case "list-installed", "li":
-		commands.ListInstalled()
+	case "reload", "sync", "s":
+		repository.Reload()
 		return
-	case "list-available", "la":
-		commands.ListAvailable()
-		return
-	case "help", "h":
-		commands.Help()
+	case "update", "upgrade", "u":
+		commands.Update()
 		return
 	default:
 		arrowprint.Err0("unknown subcomand: '%s'", args[0])

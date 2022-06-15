@@ -51,6 +51,7 @@ func InstallArchive(file string) error {
 		return err
 	}
 
+	// TODO throws an error even if same package
 	err = CheckCompatibility(pkginfo)
 	if err != nil {
 		return err

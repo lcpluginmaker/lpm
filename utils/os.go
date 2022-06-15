@@ -25,6 +25,14 @@ func IsDir(path string) bool {
 	return stat.IsDir()
 }
 
+func IsFile(path string) bool {
+	stat, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return !stat.IsDir()
+}
+
 func CopyFile(src string, dest string) error {
 	srcF, err := os.Open(src)
 	if err != nil {
