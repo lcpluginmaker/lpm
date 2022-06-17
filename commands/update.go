@@ -19,7 +19,7 @@ func Update() {
 	}
 	repository.Reload()
 	for _, pkg := range iFiles {
-		ivb, err := ioutil.ReadFile(path.Join(settings.Folders["config"], "installed", pkg.Name()))
+		ivb, err := ioutil.ReadFile(path.Join(settings.Folders["config"], "installed", pkg.Name(), "version"))
 		if err != nil {
 			arrowprint.Err0("cannot get installed version of %s", pkg.Name())
 			return

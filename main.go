@@ -12,20 +12,13 @@ import (
 	"github.com/alexcoder04/lpm/utils"
 )
 
-func _init(data gilc.IData, stage int) error {
-	switch stage {
-	case 0:
-		settings.Folders["config"] = path.Join(data.SavePath, "var", "lpm")
-		settings.Folders["temp"] = path.Join(data.DownloadPath, "apkg")
-		settings.Folders["root"] = data.SavePath
-		err := settings.UpdateConfig()
-		if err != nil {
-			return err
-		}
-		break
-	case 1:
-		repository.Reload()
-		break
+func initSettings(data gilc.IData) error {
+	settings.Folders["config"] = path.Join(data.SavePath, "var", "lpm")
+	settings.Folders["temp"] = path.Join(data.DownloadPath, "apkg")
+	settings.Folders["root"] = data.SavePath
+	err := settings.UpdateConfig()
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -33,7 +26,7 @@ func _init(data gilc.IData, stage int) error {
 func pmain(data gilc.IData) {
 	arrowprint.Suc0("running PluginMain for lpm")
 
-	err := _init(data, 0)
+	err := initSettings(data)
 	if err != nil {
 		arrowprint.Err0("cannot load config: %s", err.Error())
 		return
@@ -46,7 +39,7 @@ func pmain(data gilc.IData) {
 		return
 	}
 
-	_init(data, 1)
+	repository.Reload()
 
 	if !utils.StringArrayContains(repository.GetListInstalled(), "lpm") {
 		arrowprint.Warn0("lpm is not installed properly, installing...")
@@ -60,18 +53,20 @@ func pmain(data gilc.IData) {
 
 func pcommand(data gilc.IData, args []string) {
 	if len(args) < 1 {
-		arrowprint.Err0("you need pass a subcommand")
+		arrowprint.Err0("you need pass a subcommand, try 'lpm help'")
 		return
 	}
 
-	err := _init(data, 0)
+	err := initSettings(data)
 	if err != nil {
 		arrowprint.Err0("cannot load config: %s", err.Error())
 		return
 	}
-	_init(data, 1)
 
 	switch args[0] {
+	case "list-available", "a":
+		commands.ListAvailable()
+		return
 	case "build", "b":
 		if !settings.CurrentConfig.DebugMode {
 			arrowprint.Err0("this command is only available in debug mode")
@@ -88,13 +83,10 @@ func pcommand(data gilc.IData, args []string) {
 		}
 		arrowprint.Info0("package was saved to %s", res)
 		return
-	case "search", "f":
-		commands.Search(args)
+	case "config", "conf", "cfg", "c":
+		commands.Config(args)
 		return
-	case "help", "h":
-		commands.Help()
-		return
-	case "get-local", "gl":
+	case "get-local", "d":
 		if !settings.CurrentConfig.DebugMode {
 			arrowprint.Err0("this command is only available in debug mode")
 			return
@@ -108,6 +100,12 @@ func pcommand(data gilc.IData, args []string) {
 			arrowprint.Err0("error installing %s: %s", args[1], err.Error())
 		}
 		return
+	case "search", "f":
+		commands.Search(args)
+		return
+	case "help", "h":
+		commands.Help()
+		return
 	case "get", "install", "i":
 		if len(args) < 2 {
 			arrowprint.Err0("you need to pass the package name")
@@ -118,10 +116,7 @@ func pcommand(data gilc.IData, args []string) {
 			arrowprint.Err0("error installing %s: %s", args[1], err.Error())
 		}
 		return
-	case "list-available", "la":
-		commands.ListAvailable()
-		return
-	case "list-installed", "li":
+	case "list-installed", "l":
 		commands.ListInstalled()
 		return
 	case "remove", "uninstall", "r":
@@ -138,7 +133,7 @@ func pcommand(data gilc.IData, args []string) {
 		commands.Update()
 		return
 	default:
-		arrowprint.Err0("unknown subcomand: '%s'", args[0])
+		arrowprint.Err0("unknown subcomand: '%s', try 'lpm help'", args[0])
 		return
 	}
 }

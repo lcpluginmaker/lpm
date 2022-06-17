@@ -25,19 +25,17 @@ func ListAvailable() {
 
 func ListInstalled() {
 	arrowprint.Suc0("installed packages:")
-	for _, i := range repository.Indexes {
-		for _, p := range i.PackageList {
-			if p.OS != utils.GetOS() && p.OS != "any" {
-				continue
-			}
-			if utils.IsDir(path.Join(settings.Folders["config"], "installed", p.Name)) {
-				v, err := ioutil.ReadFile(path.Join(settings.Folders["config"], "installed", p.Name, "version"))
-				if err != nil {
-					arrowprint.Err1("%s: cannot check version", p.Name)
-					continue
-				}
-				arrowprint.Suc1("%s v%s: %s", p.Name, strings.TrimSpace(string(v)), p.Description)
-			}
+	f, err := ioutil.ReadDir(path.Join(settings.Folders["config"], "installed"))
+	if err != nil {
+		arrowprint.Err1("cannot open package database")
+		return
+	}
+	for _, f := range f {
+		v, err := ioutil.ReadFile(path.Join(settings.Folders["config"], "installed", f.Name(), "version"))
+		if err != nil {
+			arrowprint.Err1("%s: cannot check version", f.Name())
+			continue
 		}
+		arrowprint.Suc1("%s v%s", f.Name(), strings.TrimSpace(string(v)))
 	}
 }
