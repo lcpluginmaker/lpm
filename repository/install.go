@@ -51,14 +51,22 @@ func InstallArchive(file string) error {
 		return err
 	}
 
-	// TODO throws an error even if same package
-	err = CheckCompatibility(pkginfo)
+	p, err := CheckCompatibility(pkginfo)
 	if err != nil {
-		return err
+		p = strings.TrimSpace(p)
+		// random error
+		if p == "" {
+			return err
+		}
+		// conflicts with something different than itself
+		if p != "" && p != pkginfo.PackageName {
+			arrowprint.Err1("package conflicts with %s", p)
+			return err
+		}
 	}
 
 	if utils.StringArrayContains(GetListInstalled(), pkginfo.PackageName) {
-		installed, err := ioutil.ReadFile(path.Join(settings.Folders["config"], pkginfo.PackageName, "version"))
+		installed, err := ioutil.ReadFile(path.Join(settings.Folders["config"], "installed", pkginfo.PackageName, "version"))
 		if err != nil {
 			return err
 		}

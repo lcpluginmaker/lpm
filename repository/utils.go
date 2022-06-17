@@ -24,37 +24,37 @@ func GetUrlFor(pkgname string) string {
 	return ""
 }
 
-func CheckCompatibility(pkginfo builder.PKGINFO) error {
+func CheckCompatibility(pkginfo builder.PKGINFO) (string, error) {
 	arrowprint.Suc1("checking compatibility")
 	if pkginfo.PackageOS != utils.GetOS() && pkginfo.PackageOS != "any" {
-		return errors.New("package OS incompatible")
+		return "", errors.New("package OS incompatible")
 	}
-	conflict, err := AnyFilesAlreadyInstalled(pkginfo.Files)
+	conflict, pkg, err := AnyFilesAlreadyInstalled(pkginfo.Files)
 	if conflict {
-		return errors.New("package conflicts with some installed package")
+		return pkg, errors.New("package conflicts with some installed package")
 	}
-	return err
+	return "", err
 }
 
-func AnyFilesAlreadyInstalled(files []string) (bool, error) {
+func AnyFilesAlreadyInstalled(files []string) (bool, string, error) {
 	for _, f := range files {
 		packageDirs, err := ioutil.ReadDir(path.Join(settings.Folders["config"], "installed"))
 		if err != nil {
-			return true, err
+			return false, "", err
 		}
 		for _, pDir := range packageDirs {
-			lines, err := utils.ReadLinesList(path.Join(pDir.Name(), "files"))
+			lines, err := utils.ReadLinesList(path.Join(settings.Folders["config"], "installed", pDir.Name(), "files"))
 			if err != nil {
-				return true, err
+				return false, "", err
 			}
 			for _, l := range lines {
 				if strings.TrimSpace(l) == strings.TrimSpace(f) {
-					return true, nil
+					return true, pDir.Name(), nil
 				}
 			}
 		}
 	}
-	return false, nil
+	return false, "", nil
 }
 
 func GetListInstalled() []string {

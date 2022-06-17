@@ -71,8 +71,23 @@ func pcommand(data gilc.IData, args []string) {
 	}
 	_init(data, 1)
 
-	// TODO debug: build
 	switch args[0] {
+	case "build", "b":
+		if !settings.CurrentConfig.DebugMode {
+			arrowprint.Err0("this command is only available in debug mode")
+			return
+		}
+		if len(args) < 2 {
+			arrowprint.Err0("you need to pass an argument")
+			return
+		}
+		res, err := repository.BuildFolder(args[1])
+		if err != nil {
+			arrowprint.Err0("error building %s: %s", args[1], err.Error())
+			return
+		}
+		arrowprint.Info0("package was saved to %s", res)
+		return
 	case "search", "f":
 		commands.Search(args)
 		return
