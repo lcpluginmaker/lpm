@@ -12,7 +12,7 @@ import (
 )
 
 func ListAvailable() {
-	arrowprint.Suc0("available packages")
+	arrowprint.Suc0("available packages:")
 	for _, i := range repository.Indexes {
 		arrowprint.Info0("repo %s:", i.Name)
 		for _, p := range i.PackageList {
@@ -24,7 +24,7 @@ func ListAvailable() {
 }
 
 func ListInstalled() {
-	arrowprint.Suc0("installed packages")
+	arrowprint.Suc0("installed packages:")
 	for _, i := range repository.Indexes {
 		for _, p := range i.PackageList {
 			if p.OS != utils.GetOS() && p.OS != "any" {

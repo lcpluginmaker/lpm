@@ -18,15 +18,13 @@ func _init(data gilc.IData, stage int) error {
 		settings.Folders["config"] = path.Join(data.SavePath, "var", "lpm")
 		settings.Folders["temp"] = path.Join(data.DownloadPath, "apkg")
 		settings.Folders["root"] = data.SavePath
-		break
-	case 1:
-		repository.Reload()
-		break
-	case 2:
 		err := settings.UpdateConfig()
 		if err != nil {
 			return err
 		}
+		break
+	case 1:
+		repository.Reload()
 		break
 	}
 	return nil
@@ -35,10 +33,14 @@ func _init(data gilc.IData, stage int) error {
 func pmain(data gilc.IData) {
 	arrowprint.Suc0("running PluginMain for lpm")
 
-	_init(data, 0)
+	err := _init(data, 0)
+	if err != nil {
+		arrowprint.Err0("cannot load config: %s", err.Error())
+		return
+	}
 
 	// create folders
-	err := initial.CreateVarFolders()
+	err = initial.CreateVarFolders()
 	if err != nil {
 		arrowprint.Err0("cannot create var folders: %s", err.Error())
 		return
@@ -61,13 +63,14 @@ func pcommand(data gilc.IData, args []string) {
 		arrowprint.Err0("you need pass a subcommand")
 		return
 	}
-	_init(data, 0)
-	_init(data, 1)
-	err := _init(data, 2)
+
+	err := _init(data, 0)
 	if err != nil {
 		arrowprint.Err0("cannot load config: %s", err.Error())
 		return
 	}
+	_init(data, 1)
+
 	// TODO debug: build
 	switch args[0] {
 	case "search", "f":

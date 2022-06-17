@@ -16,9 +16,9 @@ type Repository struct {
 }
 
 type Config struct {
-	FirstRun     bool         `json:"firstRun"`
-	DebugMode    bool         `json:"debugMode"`
-	Repositories []Repository `json:"repositories"`
+	FirstRun     bool         `json:"FirstRun"`
+	DebugMode    bool         `json:"DebugMode"`
+	Repositories []Repository `json:"Repositories"`
 }
 
 const DEFAULT_REPO = "https://raw.githubusercontent.com/alexcoder04/LeoConsole-repo-main/main/index.json"
