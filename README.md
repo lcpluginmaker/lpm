@@ -1,6 +1,25 @@
 
 # lpm
 
+# Deprecation Note
+
+TL;DR: lpm is deprecated and replaced by the extensions system in
+[apkg](https://github.com/alexcoder04/LeoConsole-apkg).
+
+Initially, lpm started as a proof-of-concept that Go plugins with
+[gilc](https://github.com/alexcoder04/gilc) can work. It was almost
+100%-compatible with apkg some time around apkg v1.2.1. I have been bouncing
+between two continuation ideas: maintain both apkg and lpm as two compatible
+alternatives (which would be kind of redundant) or switching to lpm only.
+However, apkg is a native implementation and I already put a lot of work into
+it, so I decided to stop the development of lpm and instead implement an
+extension system into apkg, which would allow coding additional functionality
+in Go.
+
+---
+
+# Original README
+
 This is LeoConsole Package Manager of 3rd generation: after `pkg` and `apkg` it
 is now time for an *even better* package manager.
 
